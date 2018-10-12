@@ -17,9 +17,9 @@
 #define RTL_SWITCH    Switches[1]
 
 //Message IDs - buttons are IDs 0-7
-#define RTL       8              
-#define ARMED     9
-#define DISARMED  10
+int RTL = 8;              
+#define ARMED B1
+#define DISARMED B0
 
 int activeAction = -1; 
 int prevAction = -1; 
@@ -63,10 +63,24 @@ void setup() {
 
 //Main function, runs continously 
 void loop() {
+  /*
+  for(int i = 0; i < 8; i++){
+    if(!digitalRead(Buttons[i].inputPin)){
+      digitalWrite(Buttons[i].powerPin, HIGH);                                         //turn the pressed button on and the rest off
+    }
+  } 
 
+  if(digitalRead(ARM_SWITCH.inputPin)){
+    Serial.println("hello");
+  }else {
+    Serial.println("garbage"); 
+  }
+  */
+
+  
   //Handle input from the buttons
   for(int i = 0; i < 8; i++){
-    if(digitalRead(Buttons[i].inputPin)){
+    if(!digitalRead(Buttons[i].inputPin)){
       activeAction = i; 
       lightsOff(i);                                         //turn the pressed button on and the rest off
     }
@@ -85,19 +99,26 @@ void loop() {
     lightsOff(activeAction); 
     RTL_SWITCH.state = false; 
   }
-
+  bool armStatus; 
+  //armStatus = digitalRead(ARM_SWITCH.inputPin);
   //Send serial messages
-  digitalRead(ARM_SWITCH.inputPin) ? Serial.write(ARMED) : Serial.write(DISARMED);
-  Serial.write(activeAction); 
+  (digitalRead(ARM_SWITCH.inputPin)) ? Serial.print(ARMED) : Serial.print(DISARMED);
+  //digitalRead(10); 
+  //digitalRead(ARM_SWITCH.inputPin);
+  Serial.print(".");
+  Serial.println(activeAction); 
+  Serial.flush(); 
 
   delay(1000);
+  
+ 
 }
 
 
 //This function turns on a selected light and the rest off
 void lightsOff(int on){
   digitalWrite(Buttons[on].powerPin, HIGH);
-  for(int i = 0; i < 9; i++){
+  for(int i = 0; i < 8; i++){
     if(i != on){
       digitalWrite(Buttons[i].powerPin, LOW);
     } 
@@ -110,7 +131,7 @@ void pulse(){
     digitalWrite(Buttons[i].powerPin, HIGH);
   }
   delay(200);
-  for(int i = 8; i >= 0; i--){
+  for(int i = 7; i >= 0; i--){
     digitalWrite(Buttons[i].powerPin, LOW);
   }
 }
